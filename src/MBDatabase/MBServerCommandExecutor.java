@@ -65,8 +65,6 @@ class MBServerCommandExecutor {
 	
 		if(packet == null) return null;
 		MBMessagesRequest message = (MBMessagesRequest) packet.payload;
-
-		
 		ArrayList<MBMessage> messages = new ArrayList<MBMessage>();
 		String fileName = getFileName(message.id1, message.id2);
 		synchronized (openedFiles) {
@@ -89,7 +87,15 @@ class MBServerCommandExecutor {
 		        for (long i = 0; i < message.cnt; i++) {
 		            line = reader.readPreviousLine();
 		            if(line == null)break;
-		            messages.add(new MBMessage(1, 2, line));
+		            // parse content
+		           String[] contentAndRest = line.split("(\\|)(?=[^|]+\\|[^|]+\\|[^|]+$)",2);
+		           if(contentAndRest.length != 2)continue;
+		           String[] idsAndDate = contentAndRest[1].split("\\|");
+		           if(idsAndDate.length != 3)continue;
+		           messages.add(new MBMessage(Long.parseLong(idsAndDate[0]), 
+		        		   Long.parseLong(idsAndDate[1]), 
+		        		   contentAndRest[0], 
+		        		   idsAndDate[2]));
 		            
 		         }
 		
