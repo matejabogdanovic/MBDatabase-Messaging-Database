@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-
-
 class MBServerCommandExecutor {
 	private static HashMap<String, Boolean> openedFiles = new HashMap<String, Boolean>();
 	
@@ -20,24 +18,20 @@ class MBServerCommandExecutor {
 			packet -> sendMessage(packet),
 			packet -> readMessage(packet) 
 		};   
-	
+	static private String getFileName(long id1, long id2) {
+		Long first = id1 > id2?id2:id1; 
+		Long second = first == id1?id2:id1;
+		
+		return "./messages/"+first+"_"+second+".txt";
+	}
 	static MBPacket sendMessage(MBPacket packet) {
 		if(packet == null) return null; 
 		MBMessage message = (MBMessage) packet.payload;
 		long sender = message.sender;
 		long reciever = message.reciever;
 		String text = message.content;
-		Long first, second;
-		 
-		if(sender > reciever) {
-			first = reciever; 
-			second = sender;  
-		}else {
-			first = sender;
-			second = reciever;
-		}
-		System.out.println(first);
-		String fileName = "./messages/"+first+"_"+second+".txt";
+
+		String fileName = getFileName(sender, reciever);
 		synchronized (openedFiles) {
 			while(openedFiles.containsKey(fileName)) {
 				try {
@@ -71,12 +65,10 @@ class MBServerCommandExecutor {
 	
 		if(packet == null) return null;
 		MBMessagesRequest message = (MBMessagesRequest) packet.payload;
-		Long first = message.id1 > message.id2?message.id2:message.id1; 
-		Long second = first == message.id1
-				?message.id2:message.id1;
+
 		
 		ArrayList<MBMessage> messages = new ArrayList<MBMessage>();
-		String fileName = "./messages/"+first+"_"+second+".txt";
+		String fileName = getFileName(message.id1, message.id2);
 		synchronized (openedFiles) {
 			while(openedFiles.containsKey(fileName)) {
 				try {
