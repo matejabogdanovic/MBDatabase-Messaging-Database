@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 class MBServerConnectionThread extends Thread{
 	private Socket clientSocket;
@@ -23,17 +23,20 @@ class MBServerConnectionThread extends Thread{
 	@Override
 	public void run() {
 		try(InputStream is = clientSocket.getInputStream();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+				ObjectInputStream reader = new ObjectInputStream(is);
 				OutputStream os = clientSocket.getOutputStream();
-				PrintWriter writer = new PrintWriter(os, true);
+				ObjectOutputStream writer = new ObjectOutputStream(os);
 				){ 
-					String command;
-					while(!(command=reader.readLine()).equals("close")) {
+					Object command;
+					while(true) {
+						command = reader.readObject();
 						System.out.println("Accept.");
-				
-						String[] commandSplitted = command.split("\\$",2);
-						// if(commandSplitted.length != 2)??
-						MBServerWorkingThread thr =	new MBServerWorkingThread(Long.parseLong(commandSplitted[0]),commandSplitted[1], writer);
+						
+						if(!(command instanceof MBPacket)) continue;
+						MBPacket packet = (MBPacket) command;
+						if(packet.command == MBServerCommand.closeConnection)break;
+						
+						MBServerWorkingThread thr =	new MBServerWorkingThread(packet ,writer);
 						runningWorkingThreads.add(thr);
 						thr.start();
 
@@ -46,6 +49,9 @@ class MBServerConnectionThread extends Thread{
 					
 					e.printStackTrace();
 				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 

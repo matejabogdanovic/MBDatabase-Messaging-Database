@@ -5,10 +5,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,10 +20,10 @@ public class MBDatabase implements Runnable{
 	private Socket server;
 	private OutputStream os;
 	private InputStream is; 
-	private PrintWriter pout;
-	private BufferedReader pin;
+	private ObjectOutputStream pout;
+	private ObjectInputStream pin;
 	private AtomicLong requestId = new AtomicLong(0);
-	private Map<Long, String> pendingAnswers = new HashMap<Long, String>();
+	private Map<Long, Object> pendingAnswers = new HashMap<Long, Object>();
 	
 	private Thread requestHandlerThread = new Thread(this);
 	public MBDatabase(String host, int port) throws UnknownHostException, IOException {
@@ -28,8 +31,9 @@ public class MBDatabase implements Runnable{
 			this.server = new Socket(host,port);
 			this.os = server.getOutputStream();
 			this.is = server.getInputStream();
-			this.pout = new PrintWriter(os, true);
-			this.pin = new BufferedReader(new InputStreamReader(is)); 
+			this.pout = new ObjectOutputStream(os);
+			this.pin = new ObjectInputStream(is); 
+			this.requestHandlerThread.setDaemon(true);
 			this.requestHandlerThread.start();
 		}catch (Exception e) {
 			close();
@@ -39,44 +43,45 @@ public class MBDatabase implements Runnable{
 	
 	@Override
 	public void run() {
-		String s;
+		Object s;
 		try {
-			while (!requestHandlerThread.isInterrupted()) {
-				s=pin.readLine();
-				if(s==null) { 
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						break;
-					}
-					continue;
-				}
-				String[] commandSplitted = s.split("\\$",2);
-				// len != 2?? 
-				System.out.println("SPLITTED: " + commandSplitted.toString());
+			while (!Thread.currentThread().isInterrupted()) {
+				
+				s = pin.readObject();
+
+				MBPacket packet = (MBPacket)s;
+				System.out.println("Wait pending.");
 				synchronized (pendingAnswers) {
-					pendingAnswers.put(Long.parseLong(commandSplitted[0]), commandSplitted[1]);
+					System.out.println("Pending ok.");
+					pendingAnswers.put(packet.packetId, packet.payload);
 					pendingAnswers.notifyAll();	
 				}
 				
 			}
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Finished thread.");
 		
 	}
-	public void sendMessage(String message, Number sender, Number reciever) throws IOException{
+	public void sendMessage(String message, long sender, long reciever) throws IOException{
 		synchronized (pout) {
-			pout.println(requestId.getAndIncrement()+"$"+MBServerCommand.sendMessage.getValue()+"$"+sender.toString() + "$" + reciever.toString() + "$" + message);
+			pout.writeObject(
+					new MBPacket(requestId.getAndIncrement(), 
+					MBServerCommand.sendMessage, 
+					new MBMessage(sender, reciever, message)));
 		}
 	}
-	public String readMessage(Number id1, Number id2, int cnt) throws InterruptedException {
+	@SuppressWarnings("unchecked")
+	public ArrayList<MBMessage> readMessage(long id1, long id2, int cnt) throws IOException, InterruptedException {
 		long request = requestId.getAndIncrement();
-		String res = null;
+		ArrayList<MBMessage> res = null;
 		synchronized (pout) {
-			pout.println(request+"$"+MBServerCommand.readMessage.getValue()+"$"+id1.toString() + "$" + id2.toString());
+			pout.writeObject( 
+					new MBPacket(request, 
+					MBServerCommand.readMessage, 
+					new MBMessagesRequest(id1, id2, cnt)));
 		}
 		
 		synchronized (pendingAnswers) {
@@ -84,19 +89,24 @@ public class MBDatabase implements Runnable{
 			while(!pendingAnswers.containsKey(request)) {
 				pendingAnswers.wait(); 
 			};
-			res = pendingAnswers.get(request);
+			res = (ArrayList<MBMessage>) pendingAnswers.get(request);
 			pendingAnswers.remove(request);
 		}
 		 return res;
 	}
 	public void close() throws IOException {
-		pout.println("close");
+		System.out.println("Interrupting"); 
+		this.requestHandlerThread.interrupt();
+		System.out.println("Interrupted");
+	
+		pout.writeObject(new MBPacket(requestId.getAndIncrement(), 
+				MBServerCommand.closeConnection, null));
 		if(this.pin != null)this.pin.close();
 		if(this.pout != null)this.pout.close();
 		if(this.is != null)this.is.close();
 		if(this.os != null)this.os.close();
 		if(this.server != null  && !this.server.isClosed())this.server.close();
-		this.requestHandlerThread.interrupt();
+		
 	}
-	
+	 
 }	
