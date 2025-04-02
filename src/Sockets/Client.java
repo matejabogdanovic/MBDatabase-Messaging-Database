@@ -9,7 +9,7 @@ import MBDatabase.MBMessage;
  
 public class Client {
 	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
-		System.out.println("Client.");
+		System.out.println("Client."); 
 		MBDatabase db = new MBDatabase("localhost",12668);
 		//db.sendMessage("Kad cemo napolje?", 1, 2);  
 		//db.sendMessage("Aj posle.", 2, 1);  

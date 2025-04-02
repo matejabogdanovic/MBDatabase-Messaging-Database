@@ -18,7 +18,7 @@ class MBServerConnectionThread extends Thread{
 	private ArrayList<MBServerWorkingThread> runningWorkingThreads = new ArrayList<MBServerWorkingThread>();
 	public MBServerConnectionThread(Socket clientSocket) {
 		this.clientSocket = clientSocket;
-	}  
+	}   
 
 	@Override
 	public void run() {

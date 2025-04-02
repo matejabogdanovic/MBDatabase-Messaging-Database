@@ -12,7 +12,7 @@ public class MBServer {
 	private static final int maxConnectionThreads = 50; 
 	private ArrayList<MBServerConnectionThread> runningConnectionThreads = new ArrayList<MBServerConnectionThread>();
 	public MBServer(int port) throws IOException { 
-		this.port = port;
+		this.port = port; 
 	}  
 
 	private void acceptNewConnection(ServerSocket serverSocket) throws IOException {

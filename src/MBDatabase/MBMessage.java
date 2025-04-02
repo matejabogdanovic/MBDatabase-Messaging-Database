@@ -7,7 +7,7 @@ public class MBMessage implements Serializable{
 	public long sender;
 	public long reciever;
 	public String content;
-	public String date = "";
+	public String date = ""; 
 	public MBMessage(long sender, long reciever, String content, 
 			String date) {
 		this(sender, reciever, content);
