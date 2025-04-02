@@ -1,4 +1,4 @@
-package Sockets;
+package MBDatabase;
 
 import java.io.File;
 import java.io.FileWriter;

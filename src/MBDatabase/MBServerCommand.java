@@ -1,4 +1,4 @@
-package Sockets;
+package MBDatabase;
 
 enum MBServerCommand {
 	closeConnection(-2),

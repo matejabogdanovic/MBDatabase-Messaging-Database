@@ -1,9 +1,11 @@
 package Sockets;
 import java.io.IOException;
 
+import MBDatabase.MBServer;
 
-public class Sockets1 {
-	
+
+public class Server {
+	 
 	public static void main(String[] args) throws IOException{
 		MBServer server = new MBServer(12668);
 		server.start();  

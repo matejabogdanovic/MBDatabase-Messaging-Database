@@ -3,6 +3,9 @@ package Sockets;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+
+import MBDatabase.MBDatabase;
+import MBDatabase.MBMessage;
  
 public class Client {
 	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
