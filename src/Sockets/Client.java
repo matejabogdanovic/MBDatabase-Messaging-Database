@@ -14,11 +14,11 @@ public class Client {
 		//db.sendMessage("Kad cemo napolje?", 1, 2);  
 		//db.sendMessage("Aj posle.", 2, 1);  
 		Thread.sleep(5000); // wait for server to read
-		ArrayList<MBMessage> msgs= db.readMessage(3, 1, 1);
+		ArrayList<MBMessage> msgs= db.readMessage(2, 1, 1);
 		System.out.println("MESSAGE IS:" + msgs.toString());  
-		ArrayList<MBMessage> msgs2= db.readMessage(4, 1, 0, 2);
+		ArrayList<MBMessage> msgs2= db.readMessage(3, 1, 0, 2);
 		System.out.println("MESSAGE IS:" + msgs2.toString());
-		ArrayList<Long> chats = db.getAllChats(3);
+		ArrayList<Long> chats = db.getAllChats(1);
 		System.out.println("Chats with:" + chats.toString());
 		Thread.sleep(5000); // wait for server to read
 		db.close();

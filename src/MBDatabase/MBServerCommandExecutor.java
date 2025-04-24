@@ -33,7 +33,7 @@ class MBServerCommandExecutor {
 		return "./chats/"+id+".txt";
 	}
 	static MBPacket getAllChats(MBPacket packet) {
-		System.out.println("EEE");
+	
 		Long id = (Long)packet.payload;
 		File controlFile= new File(getControlFileName(id));
 		ArrayList<Long> res = new ArrayList<Long>();
@@ -41,13 +41,7 @@ class MBServerCommandExecutor {
 			try (BufferedReader reader = new BufferedReader(new FileReader(controlFile))) {
 				String line;
 	            while ((line = reader.readLine()) != null) {
-	            	 String[] ids = line.replace("./messages/", "").replace(".txt", "").split("_");
-	            	 long id1 = Long.parseLong(ids[0]);
-	                 long id2 = Long.parseLong(ids[1]);
-	                 
-	                 long neededId = (id1 == id) ? id2 : id1;
-	                 
-	                 res.add(neededId);
+	                 res.add(Long.parseLong(line));
 	            }
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -82,8 +76,8 @@ class MBServerCommandExecutor {
 			
 			try (FileWriter controlFileSender = new FileWriter(getControlFileName(sender), true);
 					FileWriter controlFileReciever = new FileWriter(getControlFileName(reciever), true)){
-				controlFileSender.write(fileName+'\n');
-				controlFileReciever.write(fileName+'\n');
+				controlFileSender.write( String.valueOf(reciever)+'\n');
+				controlFileReciever.write(String.valueOf(sender)+'\n');
 			} catch (Exception e) {
 				return null;
 			}
