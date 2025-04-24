@@ -69,7 +69,7 @@ db.close();
 - Open network port for server-client communication
 
 ## Notes
-- A `./messages/` folder must exist in the root directory for storing message files.
+- A `./messages/` and `./chats/` folders must exist in the root directory for storing message files and chats information.
 - The server must be running before clients can connect.
 - Messages are stored in text files named based on user pairs (`id1_id2.txt`).
 - Clients should always call `db.close()` to release resources when disconnecting.
