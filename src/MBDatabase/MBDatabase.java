@@ -65,6 +65,27 @@ public class MBDatabase implements Runnable{
 		System.out.println("Finished thread.");
 		
 	}
+	@SuppressWarnings("unchecked")
+	public ArrayList<Long> getAllChats(long myId) throws IOException, InterruptedException{
+		long request = requestId.getAndIncrement();
+		ArrayList<Long> res = null;
+		synchronized (pout) {
+			pout.writeObject( 
+					new MBPacket(request, 
+					MBServerCommand.getAllChats, 
+					myId));
+		}
+		
+		synchronized (pendingAnswers) {
+			// todo wait max 5s ?
+			while(!pendingAnswers.containsKey(request)) {
+				pendingAnswers.wait(); 
+			};
+			res = (ArrayList<Long>) pendingAnswers.get(request);
+			pendingAnswers.remove(request);
+		}
+		 return res;
+	}
 	public void sendMessage(String message, long sender, long reciever) throws IOException{
 		synchronized (pout) {
 			pout.writeObject(

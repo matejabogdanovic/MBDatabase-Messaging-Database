@@ -34,11 +34,11 @@ public class MBServer {
 	public void start() throws IOException {
 		try(ServerSocket serverSocket = new ServerSocket(port);){
 			System.out.println("Server.");
-			int i = 0;
+			//int i = 0;
 			while (!serverSocket.isClosed()) {
-				if(i==1)break;
+				//if(i==1)break;
 				acceptNewConnection(serverSocket);
-				i++;   
+				//i++;   
 			}  
 			// wait joinTime for each thread to finish then just close server
 			// threads are deamon and they will finish

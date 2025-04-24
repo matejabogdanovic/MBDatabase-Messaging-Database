@@ -51,7 +51,11 @@ ArrayList<MBMessage> msgs = db.readMessage(id1, id2, count);
 // 3. argument is starting message, so in this case, read count messages starting from latest message recieved
 System.out.println("Messages are: " + msgs.toString());
 ```
-
+### Get All Chats
+To get all users that `id` has a chat with:
+```java
+ArrayList<Long> chats = db.getAllChats(id);
+```
 
 ### Closing the Connection
 When the client is shutting down, close the connection properly:
