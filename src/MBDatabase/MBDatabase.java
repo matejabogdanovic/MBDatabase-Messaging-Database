@@ -73,15 +73,19 @@ public class MBDatabase implements Runnable{
 					new MBMessage(sender, reciever, message)));
 		}
 	}
+	
+	public ArrayList<MBMessage> readMessage(long id1, long id2, int cnt) throws IOException, InterruptedException{
+		return readMessage(id1, id2, 0, cnt);
+	}
 	@SuppressWarnings("unchecked")
-	public ArrayList<MBMessage> readMessage(long id1, long id2, int cnt) throws IOException, InterruptedException {
+	public ArrayList<MBMessage> readMessage(long id1, long id2, int fromCnt,  int cnt) throws IOException, InterruptedException {
 		long request = requestId.getAndIncrement();
 		ArrayList<MBMessage> res = null;
 		synchronized (pout) {
 			pout.writeObject( 
 					new MBPacket(request, 
 					MBServerCommand.readMessage, 
-					new MBMessagesRequest(id1, id2, cnt)));
+					new MBMessagesRequest(id1, id2, fromCnt, cnt)));
 		}
 		
 		synchronized (pendingAnswers) {

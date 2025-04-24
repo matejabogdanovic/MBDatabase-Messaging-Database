@@ -11,6 +11,8 @@ public class MBServer {
 	private static final int joinTime = 500; 
 	private static final int maxConnectionThreads = 50; 
 	private ArrayList<MBServerConnectionThread> runningConnectionThreads = new ArrayList<MBServerConnectionThread>();
+
+
 	public MBServer(int port) throws IOException { 
 		this.port = port; 
 	}  
@@ -34,7 +36,7 @@ public class MBServer {
 			System.out.println("Server.");
 			int i = 0;
 			while (!serverSocket.isClosed()) {
-				if(i==2)break;
+				if(i==1)break;
 				acceptNewConnection(serverSocket);
 				i++;   
 			}  

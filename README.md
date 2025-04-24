@@ -47,8 +47,11 @@ To retrieve the last `count` messages exchanged between two users:
 
 ```java
 ArrayList<MBMessage> msgs = db.readMessage(id1, id2, count);
+// same as ArrayList<MBMessage> msgs = db.readMessage(id1, id2, 0, count);
+// 3. argument is starting message, so in this case, read count messages starting from latest message recieved
 System.out.println("Messages are: " + msgs.toString());
 ```
+
 
 ### Closing the Connection
 When the client is shutting down, close the connection properly:

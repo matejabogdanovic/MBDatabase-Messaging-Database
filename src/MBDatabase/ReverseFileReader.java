@@ -13,12 +13,13 @@ public class ReverseFileReader {
         this.raf = new RandomAccessFile(file, "r");
         this.cursorPosition = file.length() - 1; // Početak od kraja fajla
     }
-
+    
+ 
     public String readPreviousLine() throws IOException {
         if (cursorPosition < 0) {
             return null; // Nema više linija za čitanje
         }
-
+        
         StringBuilder line = new StringBuilder();
         boolean hasRead = false;
 

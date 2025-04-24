@@ -44,6 +44,7 @@ class MBServerCommandExecutor {
 			openedFiles.put(fileName, true);
 		}
 		try (FileWriter fw = new FileWriter(fileName, true)){
+			
 			fw.write(
 					text +"|"+
 					+sender+"|"+reciever+"|"+LocalDateTime.now()+"\n"
@@ -84,9 +85,10 @@ class MBServerCommandExecutor {
 			if(file.exists()) {
 				ReverseFileReader reader = new ReverseFileReader(fileName);
 		        String line;
-		        for (long i = 0; i < message.cnt; i++) {
+		        for (long i = 0; i < message.cnt + message.fromCnt; i++) {
 		            line = reader.readPreviousLine();
 		            if(line == null)break;
+		            if(i < message.fromCnt)continue;
 		            // parse content
 		           String[] contentAndRest = line.split("(\\|)(?=[^|]+\\|[^|]+\\|[^|]+$)",2);
 		           if(contentAndRest.length != 2)continue;
